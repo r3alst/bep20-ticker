@@ -1,27 +1,22 @@
 const {ChainId, Fetcher, Percent, currencyEquals, Token, JSBI, TokenAmount, Trade} = require("@pancakeswap/sdk");
 const {baseCurrencies} = require("./tokens");
-// Pancake Router
-const ROUTER = process.env.ROUTER || '0x10ED43C718714eb63d5aA57B78B54704E256024E';
-const SEED_PHRASE = process.env.SEED_PHRASE || "";
 const FROM_TOKEN = process.env.FROM_TOKEN || "";
 const TO_TOKEN = process.env.TO_TOKEN || "";
 const AMOUNT_IN = process.env.AMOUNT_IN || "100";
 const PAIR_NAME = process.env.PAIR_NAME || "";
 const TICKER_MANAGER = process.env.TICKER_MANAGER || "http://localhost:8000";
-const GAS_PRICE = 5; // 5 gwei
 
-export const ZERO_PERCENT = new Percent('0')
-export const ONE_HUNDRED_PERCENT = new Percent('1')
-export const MAX_HOPS = 3
+const ZERO_PERCENT = new Percent('0')
+const ONE_HUNDRED_PERCENT = new Percent('1')
+const MAX_HOPS = 3
 
 // used to ensure the user doesn't send so much BNB so they end up with <.01
-export const MIN_BNB = JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(16)) // .01 BNB
-export const BETTER_TRADE_LESS_HOPS_THRESHOLD = new Percent(JSBI.BigInt(50), JSBI.BigInt(10000))
+const MIN_BNB = JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(16)) // .01 BNB
+const BETTER_TRADE_LESS_HOPS_THRESHOLD = new Percent(JSBI.BigInt(50), JSBI.BigInt(10000))
 
 const ethers = require("ethers");
+const axios = require("axios");
 const provider = new ethers.providers.JsonRpcProvider("https://bsc-dataseed.binance.org");
-const wallet = new ethers.Wallet.fromMnemonic(SEED_PHRASE);
-const signer = wallet.connect(provider);
 
 function isTradeBetter(tradeA, tradeB, minimumDelta) {
   if(!minimumDelta)
@@ -123,10 +118,10 @@ const toToken = new Token(
     return null;
   }
 
-  const rateChecker = function() {
+  const rateChecker = async function() {
     try {
       // Sending getRate
-      const currentRate = getRate(fromToken, toToken)
+      const currentRate = await getRate(fromToken, toToken)
       if(currentRate) {
         axios({
           method: "POST",
@@ -144,6 +139,6 @@ const toToken = new Token(
       setTimeout(rateChecker, 1000);
     }
   }
-  rateChecker();
+  await rateChecker();
 
 })()
