@@ -1,0 +1,19 @@
+version: '3'
+services:
+  web:
+    image: r3alst/bep20-ticker:v1
+    container_name: wbnb-ticker
+    restart: unless-stopped
+    tty: true
+    environment:
+      FROM_TOKEN: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c"
+      TO_TOKEN: "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56"
+      AMOUNT_IN: "500"
+      PAIR_NAME: "WBNBBUSD"
+      TICKER_MANAGER: "http://localhost:8000"
+    networks:
+      - bep20-network
+#Docker Networks
+networks:
+  bep20-network:
+    driver: bridge
