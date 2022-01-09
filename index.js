@@ -1,4 +1,4 @@
-const {Fetcher, Percent, currencyEquals, Token, JSBI, TokenAmount, Trade} = require("@pancakeswap/sdk");
+const {ChainId, Fetcher, Percent, currencyEquals, Token, JSBI, TokenAmount, Trade} = require("@pancakeswap/sdk");
 const {baseCurrencies} = require("./tokens");
 // Pancake Router
 const ROUTER = process.env.ROUTER || '0x10ED43C718714eb63d5aA57B78B54704E256024E';
@@ -95,19 +95,55 @@ const findBestTrade = async (currencyAmountIn, currencyOut, provider) => {
   return bestTradeSoFar
 }
 
+const fromToken = new Token(
+  ChainId.MAINNET,
+  FROM_TOKEN,
+  18,
+  "ERC20",
+  "ERC20"
+);
+
+const toToken = new Token(
+  ChainId.MAINNET,
+  TO_TOKEN,
+  18,
+  "BEP20",
+  "BEP20"
+);
+
 (async function() {
 
-  const routerContract = new ethers.Contract(
-    ROUTER,
-    [
-      'function getAmountsOut(uint amountIn, address[] calldata path) external view returns (uint[] memory amounts)',
-      'function swapExactTokensForTokens(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)',
-      'function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)',
-      'function swapETHForExactTokens(uint amountOut, address[] calldata path, address to, uint deadline) external payable returns (uint[] memory amounts)',
-      'function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline) external returns (uint[] memory amounts)',
-      'function swapExactTokensForTokensSupportingFeeOnTransferTokens(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline)'
-    ],
-    signer
-  );
+  const getRate = async (fromCurrency, toCurrency) => {
+    const amountIn = new TokenAmount(fromCurrency, JSBI.BigInt(ethers.utils.parseUnits(AMOUNT_IN, 18).toString()) );
+    const _amountIn = parseFloat(AMOUNT_IN);
+    const bestTrade = await findBestTrade(amountIn, toCurrency, provider);
+    if(bestTrade instanceof Trade) {
+      return parseFloat(ethers.utils.formatUnits(bestTrade.outputAmount.raw.toString(), 18))/_amountIn;
+    }
+    return null;
+  }
+
+  const rateChecker = function() {
+    try {
+      // Sending getRate
+      const currentRate = getRate(fromToken, toToken)
+      if(currentRate) {
+        axios({
+          method: "POST",
+          baseURL: TICKER_MANAGER,
+          url: "/api/v1/ticker",
+          data: {
+            rate: currentRate,
+            pair: PAIR_NAME
+          }
+        }).then(function(response) {
+          setTimeout(rateChecker, 1000);
+        });
+      }
+    } catch (e) {
+      setTimeout(rateChecker, 1000);
+    }
+  }
+  rateChecker();
 
 })()
