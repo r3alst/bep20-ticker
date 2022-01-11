@@ -129,7 +129,8 @@ const toToken = new Token(
           url: "/api/v1/ticker",
           data: {
             rate: currentRate,
-            pair: PAIR_NAME
+            pair: PAIR_NAME,
+            network: "BSC"
           }
         }).then(function(response) {
           setTimeout(rateChecker, 1000);
