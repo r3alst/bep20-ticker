@@ -134,7 +134,7 @@ const toToken = new Token(
           }
         }).then(function(response) {
           console.log(JSON.stringify({
-            error: true,
+            error: false,
             message: "network: BSC, rate: " + currentRate
           }))
           setTimeout(rateChecker, 1000);
