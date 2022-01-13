@@ -133,10 +133,24 @@ const toToken = new Token(
             network: "BSC"
           }
         }).then(function(response) {
+          console.log(JSON.stringify({
+            error: true,
+            message: "network: BSC, rate: " + currentRate
+          }))
+          setTimeout(rateChecker, 1000);
+        }).catch((e) => {
+          console.log(JSON.stringify({
+            error: true,
+            message: e.message
+          }))
           setTimeout(rateChecker, 1000);
         });
       }
     } catch (e) {
+      console.log(JSON.stringify({
+        error: true,
+        message: e.message
+      }))
       setTimeout(rateChecker, 1000);
     }
   }
