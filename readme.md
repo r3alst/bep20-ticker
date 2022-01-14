@@ -20,6 +20,7 @@ export AMOUNT_IN="500"
 export PAIR_NAME="IDIABUSD"
 export TICKER_MANAGER="http://localhost:8000"
 ```
+3. run `source env` to load environment variables.
 
 **Hint:** `AMOUNT_IN` means how many units it will try to check rate, its required because pancake router increases/decrease rate according units you want to sell or buy.
 
