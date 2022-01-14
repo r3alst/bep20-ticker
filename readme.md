@@ -30,5 +30,5 @@ export TICKER_MANAGER="http://localhost:8000"
 2. change contract addresses according your tokens/pair and ticker manager url.
 3. run ``docker-compose up -d``
 
-**OPTIONAL:** Please support me by contributing to project or to following BSC/ERC/TRC address.
+**OPTIONAL:** Please support me by contributing to project or to following BSC/ERC/MATIC address.
 `0x200753090BC55A39Ff790150143D28635f0E87bb`
